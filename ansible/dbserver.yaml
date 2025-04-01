@@ -1,0 +1,16 @@
+- hosts: db
+  become: yes
+  tasks:
+    - name: Install MongoDB
+      yum:
+        name: mongodb-org
+        state: present
+
+    - name: Start MongoDB
+      service:
+        name: mongod
+        state: started
+        enabled: yes
+
+    - name: Secure MongoDB
+      shell: mongo --eval "db.createUser({user: 'mern_user', pwd: 'mern_pass', roles: [{role: 'readWrite', db: 'mern_db'}]})"

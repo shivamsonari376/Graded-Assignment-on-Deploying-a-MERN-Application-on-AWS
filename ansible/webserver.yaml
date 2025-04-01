@@ -1,0 +1,55 @@
+- hosts: frontend
+  become: yes
+  tasks:
+    - name: Install Node.js and NPM (Frontend)
+      yum:
+        name:
+          - nodejs
+          - npm
+        state: present
+
+    - name: Clone Frontend Repository
+      git:
+        repo: 'https://github.com/UnpredictablePrashant/TravelMemory.git'
+        dest: /home/ec2-user/frontend
+
+    - name: Install Frontend dependencies
+      command: npm install
+      args:
+        chdir: /home/ec2-user/frontend
+
+    - name: Build the Frontend
+      command: npm run build
+      args:
+        chdir: /home/ec2-user/frontend
+
+
+- hosts: backend
+  become: yes
+  tasks:
+    - name: Install Node.js and NPM (Backend)
+      yum:
+        name:
+          - nodejs
+          - npm
+        state: present
+
+    - name: Clone Backend Repository
+      git:
+        repo: 'https://github.com/UnpredictablePrashant/TravelMemory.git'
+        dest: /home/ec2-user/backend
+
+    - name: Install Backend dependencies
+      command: npm install
+      args:
+        chdir: /home/ec2-user/backend
+
+    - name: Set environment variables for Backend
+      lineinfile:
+        path: /etc/environment
+        line: 'MONGO_URI="mongodb://mern_user:mern_pass@<db-server-private-ip>:27017/mern_db"'
+
+    - name: Start the Backend Node.js app
+      command: npm start
+      args:
+        chdir: /home/ec2-user/backend
